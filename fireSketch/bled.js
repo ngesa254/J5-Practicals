@@ -1,10 +1,8 @@
-/*
+/**********************************************
   Controlling led with a button through firebase
   
-  This example code is in the public domain.
-  modified 10 Jan 2017
-  by Ngesa N Marvin
-*/
+ Ngesa N Marvin
+**********************************************/
 
 var five = require("johnny-five");
 var Edison = require("edison-io");
@@ -12,34 +10,36 @@ var board = new five.Board({
   io: new Edison()
 });
 
-board.on("ready", function() {
+// connect to firebase
+var myFirebaseRef = new Firebase("https://YOUR_FIREBASE.firebaseio.com/");
 
-  // Create a new `button` hardware instance.
- 
-  var button = new five.Button(13);
-  var led = new five.Led(12);
-	var myFirebaseRef = new Firebase("https://YOUR_FIREBASE.firebaseio.com/");
-
-  // pressing the button down
-  button.on("down", function() {
-    console.log("down");
-		myFirebaseRef.set("down");
+// button writes to firebase
+board.on("ready", function () {
+  
+  var button = new five.Button(6);
+  board.repl.inject({
+    button: button
   });
 
-  //releasing the button
-  button.on("up", function() {
-    console.log("up");
-		myFirebaseRef.set("up");
+	// pressing the button down
+  button.on("down", function () {
+    myFirebaseRef.child("button").set("down");
+  });
+	
+// pressing the button up
+
+  button.on("up", function () {
+    myFirebaseRef.child("button").set("up");
   });
 
-// Controlling the led
-
-	myFirebaseRef.on("value", function(snapshot) {
-		var buttonState = snapshot.val(); 
-	  if(buttonState == "down") {
-		  led.on();
-		} else {
-		  led.off();
-		}
-	});
+	// controlling the led
+  var led = five.Led(13);
+  led.on();
+  myFirebaseRef.child("button").on("value", function(snap) {
+    if(snap.val() == "down") {
+      led.on();
+    } else {
+      led.off();
+    }
+  });
 });
