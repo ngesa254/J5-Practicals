@@ -1,7 +1,7 @@
 var five = require("johnny-five";
 var Firebase = require("firebase");
 
-Var board = new five.Board();
+var board = new five.Board();
 
 board.on("ready", function() {
 
